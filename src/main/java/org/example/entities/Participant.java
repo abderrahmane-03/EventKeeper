@@ -40,7 +40,8 @@ public class Participant {
      * @param email The email of the participant.
      * @param phoneNumber The phone number of the participant.
      */
-    public Participant(String name, String email, String phoneNumber) {
+    public Participant(UUID participantId,String name, String email, String phoneNumber) {
+        this.participantId = UUID.randomUUID();
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;

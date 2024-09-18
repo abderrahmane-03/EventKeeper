@@ -11,14 +11,15 @@ import org.example.dao.ParticipantDAO;
 import org.example.entities.Event;
 import org.example.entities.Participant;
 import org.example.entities.Registration;
+import org.example.entities.User;
 import org.example.enums.EventType;
 import org.example.services.ReportService;
+import org.example.services.UserService;
 import org.example.utils.Validation;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+
+import static org.example.services.UserService.login;
 
 /**
  * ConsoleUI class handles the user interactions via the command-line interface.
@@ -36,7 +37,6 @@ public class ConsoleUI {
     private final ParticipantDAO participantManager;
     private final ReportService reportService;
     private final Scanner scanner;
-
     /**
      * Constructor for ConsoleUI.
      *
@@ -58,46 +58,35 @@ public class ConsoleUI {
     public void displayAdminMenu() {
 
 
-        System.out.println("                                                                                                                    \n" +
+        System.out.println("                                                                                                                     \n" +
 
-                "         eeeeeeeeeeee    vvvvvvv           vvvvvvv    eeeeeeeeeeee    nnnn  nnnnnnnn    ttttttt:::::ttttttt         \n" +
-                "       ee::::::::::::ee   v:::::v         v:::::v   ee::::::::::::ee  n:::nn::::::::nn  t:::::::::::::::::t         \n" +
-                "      e::::::eeeee:::::ee  v:::::v       v:::::v   e::::::eeeee:::::een::::::::::::::nn t:::::::::::::::::t         \n" +
-                "     e::::::e     e:::::e   v:::::v     v:::::v   e::::::e     e:::::enn:::::::::::::::ntttttt:::::::tttttt         \n" +
-                "     e:::::::eeeee::::::e    v:::::v   v:::::v    e:::::::eeeee::::::e  n:::::nnnn:::::n      t:::::t               \n" +
-                "     e:::::::::::::::::e      v:::::v v:::::v     e:::::::::::::::::e   n::::n    n::::n      t:::::t               \n" +
-                "     e::::::eeeeeeeeeee        v:::::v:::::v      e::::::eeeeeeeeeee    n::::n    n::::n      t:::::t               \n" +
-                "     e:::::::e                  v:::::::::v       e:::::::e             n::::n    n::::n      t:::::t    tttttt     \n" +
-                "     e::::::::e                  v:::::::v        e::::::::e            n::::n    n::::n      t::::::tttt:::::t     \n" +
-                "      e::::::::eeeeeeee           v:::::v          e::::::::eeeeeeee    n::::n    n::::n      tt::::::::::::::t     \n" +
-                "       ee:::::::::::::e            v:::v            ee:::::::::::::e    n::::n    n::::n        tt:::::::::::tt     \n" +
-                "         eeeeeeeeeeeeee             vvv               eeeeeeeeeeeeee    nnnnnn    nnnnnn          ttttttttttt       \n" +
-                "kkkkkkkk                                                                                                               \n" +
-                "k::::::k                                                                                                               \n" +
-                "k::::::k                                                                                                               \n" +
-                "k::::::k                                                                                                               \n" +
-                " k:::::k    kkkkkkk    eeeeeeeeeeee        eeeeeeeeeeee    ppppp   ppppppppp       eeeeeeeeeeee    rrrrr   rrrrrrrrr   \n" +
-                " k:::::k   k:::::k   ee::::::::::::ee    ee::::::::::::ee  p::::ppp:::::::::p    ee::::::::::::ee  r::::rrr:::::::::r  \n" +
-                " k:::::k  k:::::k   e::::::eeeee:::::ee e::::::eeeee:::::eep:::::::::::::::::p  e::::::eeeee:::::eer:::::::::::::::::r \n" +
-                " k:::::k k:::::k   e::::::e     e:::::ee::::::e     e:::::epp::::::ppppp::::::pe::::::e     e:::::err::::::rrrrr::::::r\n" +
-                " k::::::k:::::k    e:::::::eeeee::::::ee:::::::eeeee::::::e p:::::p     p:::::pe:::::::eeeee::::::e r:::::r     r:::::r\n" +
-                " k:::::::::::k     e:::::::::::::::::e e:::::::::::::::::e  p:::::p     p:::::pe:::::::::::::::::e  r:::::r     rrrrrrr\n" +
-                " k:::::::::::k     e::::::eeeeeeeeeee  e::::::eeeeeeeeeee   p:::::p     p:::::pe::::::eeeeeeeeeee   r:::::r            \n" +
-                " k::::::k:::::k    e:::::::e           e:::::::e            p:::::p    p::::::pe:::::::e            r:::::r            \n" +
-                "k::::::k k:::::k   e::::::::e          e::::::::e           p:::::ppppp:::::::pe::::::::e           r:::::r            \n" +
-                "k::::::k  k:::::k   e::::::::eeeeeeee   e::::::::eeeeeeee   p::::::::::::::::p  e::::::::eeeeeeee   r:::::r            \n" +
-                "k::::::k   k:::::k   ee:::::::::::::e    ee:::::::::::::e   p::::::::::::::pp    ee:::::::::::::e   r:::::r            \n" +
-                "kkkkkkkk    kkkkkkk    eeeeeeeeeeeeee      eeeeeeeeeeeeee   p::::::pppppppp        eeeeeeeeeeeeee   rrrrrrr            \n" +
-                "                                                            p:::::p                                                    \n" +
-                "                                                            p:::::p                                                    \n" +
-                "                                                           p:::::::p                                                   \n");
+                " ████████████████████████████████████████████████████████████████████████████████         \n" +
+                " ██████████████████████████████████╣▓▒██▒██▒▓╢███████████████████████████████████         \n" +
+                " ████████████████████████████████████▒▓███▓▒█████████████████████████████████████         \n" +
+                " ██████████████████████████████████████▓█████████████████████████████████████████         \n" +
+                " ███████████████████████████████████████▓████████████████████████████████████████               \n" +
+                " ████████████████████▀ ,. ,▌ ,,  ▌ ,,  ▌  ,,▐▌  , ╘▌   ,▐████████████████████████               \n" +
+                " ███████████████████▀     █  ╙` █-     ▌  4▀▀█     ██∞  \"▀██████████████████████               \n" +
+                " ██████████████████▌,▄▓▓▓▓;,▄▄,,█,,▓▓▓█▌,,,,,█,,██,,█,,,,,▐▄ ▀███████████████████     \n" +
+                " ███████████████▀▀▀▀▀▀▀▓▀▀▀▓██▓▓█▀▀▀▀▀▀▀▓▀▀▀▀▀▀▀██▀▀▀▀▀▀▀▓▀▀ ⁿ▀▀▀████████████████     \n" +
+                " ██████████████       ▐▌  ▐▓██▓▓        ▓        █       ▐▌        ██████████████     \n" +
+                " █████████████  -▀▀  ╔█  ,█▓██▓▓    ▀▓▓▓▓   ██   ██▄   ╙▓▓█▄   ╙▓▓███████████████    \n" +
+                " ███████████▀       ╒█   ███████   ╓█▓▓▓█        ▐███▄     ▀█▌   ▐▓██████████████       \n" +
+                " ██████████▀  ▄▄▄▄▄▄█         █         █-        █        ╙█        ▀███████████                                     \n" +
+                " █████████'  ▄█▓▓▓▓▓▌        ▐█         █-  ╒▄▄   █▌        ▀█          █████████                                      \n" +
+                " █████████▓▓▓██▓▓▓▓▓▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓▓█▓▓▓▓██▓▓▓██▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓▓█████████                                     \n" +
+                " █████████▓▓▓███████▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓▓██▓▓▓██▓▓▓█▓▓▓▓▓▓▓▓▓▓▓█▓▓▓▓▓▓▓▓██████████                                       \n" +
+                " █████████▓▓▓███████▓▓▓▓▓▓▓▓▓▓█▓▓▓▓▓▓▓▓▓██▓▓▓██▓▓▓█▓▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓██████████   \n" +
+                " █████████▓▓▓███████▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓▓██▓▓▓██▓▓▓██▓▓▓▓▓▓▓▓▓██▓▓▓▓▓▓▓▓██████████  \n" +
+                " ████████████████████████████████████████████████████████████████████████████████ \n");
                 System.out.println("1. Add Event");
                 System.out.println("2. Modify Event");
                 System.out.println("3. Delete Event");
                 System.out.println("4. Generate Event Report");
                 System.out.println("5. Manage Participants");
                 System.out.println("6. search for an events");
-                System.out.println("7. Exit");
+                System.out.println("7. Change User");
+                System.out.println("8. Exit");
     }
 
     /**
@@ -108,7 +97,8 @@ public class ConsoleUI {
         System.out.println("1. View Events");
         System.out.println("2. Register for Event");
         System.out.println("3. View My Registrations");
-        System.out.println("6. Exit");
+        System.out.println("7. Change User");
+        System.out.println("8. Exit");
     }
 
     /**
@@ -136,13 +126,14 @@ public class ConsoleUI {
                 String eventTypeInput = scanner.next().toUpperCase();
                 try {
                     EventType eventType = EventType.valueOf(eventTypeInput);
-                    Event newEvent = new Event();
-                    newEvent.setEventName(eventName);
-                    newEvent.setEventDate(eventDate);
-                    newEvent.setEventLocation(eventLocation);
-                    newEvent.setEventType(eventType);
+                    Event event = new Event();
+                    event.setEventId(UUID.randomUUID());
+                    event.setEventName(eventName);
+                    event.setEventDate(eventDate);
+                    event.setEventLocation(eventLocation);
+                    event.setEventType(eventType);
 
-                    eventManager.addEvent(newEvent);
+                    eventManager.addEvent(event);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Invalid event type. Please enter a valid type.");
                 }
@@ -166,6 +157,9 @@ public class ConsoleUI {
                 searchforEvents();
                 break;
             case 7:
+                System.out.println("Changing User...");
+                break;
+            case 8:
                 System.out.println("Exiting...");
                 scanner.close();
                 System.exit(0);
@@ -194,8 +188,13 @@ public class ConsoleUI {
             case 3:
                 System.out.println("Viewing your registrations...");
                 System.out.print("Enter your name: ");
-                String userName = scanner.nextLine();
 
+                // Ensure the input buffer is clear
+                scanner.nextLine(); // Clear any remaining newline characters
+                String userName = scanner.nextLine();
+                System.out.println("User name entered: " + userName);
+
+                // Proceed with the registration lookup
                 List<Registration> registrations = getRegistrationsByUserName(userName);
 
                 if (registrations.isEmpty()) {
@@ -208,8 +207,15 @@ public class ConsoleUI {
                         System.out.println("----");
                     }
                 }
+
+
+            break;
+
+            case 7:
+                System.out.println("Changing User...");
                 break;
-            case 6:
+
+            case 8:
                 System.out.println("Exiting...");
                 scanner.close();
                 System.exit(0);
@@ -233,7 +239,15 @@ public class ConsoleUI {
         return registrations;
     }
     private void modifyEvent() {
-        int modifyId = validateEventId();
+        String modifyIdString = validateEventId();
+        UUID modifyId = null;
+        try {
+            modifyId = UUID.fromString(modifyIdString);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid event ID format.");
+            return;
+        }
+
         String newName = Validation.validateStringInput(scanner, "New Event Name");
         Date newDate = Validation.validateDate(scanner);
         String newLocation = Validation.validateStringInput(scanner, "New Event Location");
@@ -252,14 +266,27 @@ public class ConsoleUI {
     }
 
     private void deleteEvent() {
-        int deleteId = validateEventId();
+        String deleteIdString = validateEventId();
+        UUID deleteId = null;
+        try {
+            deleteId = UUID.fromString(deleteIdString);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid event ID format.");
+            return;
+        }
         eventManager.deleteEvent(deleteId);
     }
-    /**
-     * Registers a participant for an event.
-     */
+
     private void registerForEvent() {
-        int eventId = validateEventId();
+        String eventIdString = validateEventId();
+        UUID eventId = null;
+        try {
+            eventId = UUID.fromString(eventIdString);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid event ID format.");
+            return;
+        }
+
         System.out.println("Registering for event ID: " + eventId);
 
         System.out.print("Enter your name: ");
@@ -269,7 +296,8 @@ public class ConsoleUI {
         Event event = eventManager.findById(eventId);
 
         if (participant != null && event != null) {
-            Registration registration = new Registration(event, new Date()); // Pass event and current date
+            System.out.println("Event found: " + event);
+            Registration registration = new Registration(event, new Date());
             participant.addRegistration(registration);
             participantManager.addRegistrationToParticipant(participant.getParticipantId(), registration);
             System.out.println("Successfully registered for the event.");
@@ -282,6 +310,7 @@ public class ConsoleUI {
             }
         }
     }
+
 
 
     /**
@@ -355,7 +384,7 @@ public class ConsoleUI {
      * Manages participants by allowing the admin to add, modify, or delete participants.
      */
     private void manageParticipants() {
-        System.out.println("1. add participant");
+        System.out.println("1. Add Participant");
         System.out.println("2. Modify Participant");
         System.out.println("3. Delete Participant");
 
@@ -368,21 +397,21 @@ public class ConsoleUI {
                 String email = Validation.validateEmail(scanner);
                 String phoneNumber = Validation.validateStringInput(scanner, "Phone Number");
 
-                participantManager.addParticipant(new Participant( name, email, phoneNumber));
+                participantManager.addParticipant(new Participant(UUID.randomUUID(), name, email, phoneNumber));
                 break;
 
             case 2:
-                int participantId = validateParticipantId();
+                UUID modifyParticipantId = validateParticipantId();
                 String newName = Validation.validateStringInput(scanner, "New Name");
                 String newEmail = Validation.validateEmail(scanner);
                 String newPhoneNumber = Validation.validateStringInput(scanner, "New Phone Number");
 
-                participantManager.modifyParticipant(participantId, newName, newEmail, newPhoneNumber);
+                participantManager.modifyParticipant(modifyParticipantId, newName, newEmail, newPhoneNumber);
                 break;
 
             case 3:
-                participantId = validateParticipantId();
-                participantManager.deleteParticipant(participantId);
+                UUID deleteParticipantId = validateParticipantId();
+                participantManager.deleteParticipant(deleteParticipantId);
                 break;
 
             default:
@@ -390,50 +419,53 @@ public class ConsoleUI {
                 break;
         }
     }
+
     /**
      * Validates and returns an event ID input by the user.
      *
      * @return A valid positive event ID.
      */
-    private int validateEventId() {
-        int eventId = 0;
-        while (eventId <= 0) {
-            System.out.print("Enter a positive Event ID: ");
-            if (scanner.hasNextInt()) {
-                eventId = scanner.nextInt();
-                if (eventId <= 0) {
-                    System.out.println("Event ID must be positive.");
-                }
-            } else {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.next();
-            }
+    private String validateEventId() {
+        String eventId = scanner.nextLine();
+        try {
+            UUID.fromString(eventId); // Validate UUID format
+            return eventId;
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid input. Please enter a valid UUID.");
+            return validateEventId(); // Prompt again
         }
-        scanner.nextLine();
-        return eventId;
+    }
+
+    private boolean isValidUUID(String input) {
+        try {
+            UUID.fromString(input);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
     /**
      * Validates and returns a participant ID input by the user.
      *
      * @return A valid positive participant ID.
      */
-    private int validateParticipantId() {
-        int participantId = 0;
-        while (participantId <= 0) {
-            System.out.print("Enter a positive Participant ID: ");
-            if (scanner.hasNextInt()) {
-                participantId = scanner.nextInt();
-                if (participantId <= 0) {
-                    System.out.println("Participant ID must be positive.");
-                }
-            } else {
-                System.out.println("Invalid input. Please enter a valid number.");
-                scanner.next();
+    private UUID validateParticipantId() {
+        UUID participantId = null;
+        boolean isValid = false;
+
+        while (!isValid) {
+            System.out.print("Enter a valid Participant ID (UUID format): ");
+            String input = scanner.nextLine();
+            try {
+                participantId = UUID.fromString(input);
+                isValid = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Invalid input. Please enter a valid UUID.");
             }
         }
-        scanner.nextLine();
         return participantId;
     }
+
 
 
 }

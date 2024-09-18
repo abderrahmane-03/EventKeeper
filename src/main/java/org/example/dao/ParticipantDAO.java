@@ -20,10 +20,8 @@ import java.util.UUID;
  */
 public class ParticipantDAO {
 
-    // Stores participants with their unique UUID as keys
     private final Map<UUID, Participant> participantMap = new HashMap<>();
 
-    // List to store all participants
     private final ArrayList<Participant> participants;
 
     /**
@@ -51,25 +49,25 @@ public class ParticipantDAO {
      * @param newEmail The new email of the participant.
      * @param newPhoneNumber The new phone number of the participant.
      */
-    public void modifyParticipant(int participantId, String newName, String newEmail, String newPhoneNumber) {
-        for (Participant participant : participants) {
-            if (participant.getParticipantId().equals(participantId)) {
-                participant.setName(newName);
-                participant.setEmail(newEmail);
-                participant.setPhoneNumber(newPhoneNumber);
-                System.out.println("Participant modified successfully.");
-                return;
-            }
-        }
-        System.out.println("Participant not found.");
+    public void modifyParticipant(UUID participantId, String newName, String newEmail, String newPhoneNumber) {
+        participants.stream()
+                .filter(participant -> participant.getParticipantId().equals(participantId))
+                .findFirst()
+                .ifPresentOrElse(participant -> {
+                    participant.setName(newName);
+                    participant.setEmail(newEmail);
+                    participant.setPhoneNumber(newPhoneNumber);
+                    System.out.println("Participant modified successfully.");
+                }, () -> System.out.println("Participant not found."));
     }
+
 
     /**
      * Deletes a participant from the participant list based on the participant ID.
      *
      * @param participantId The ID of the participant to be deleted.
      */
-    public void deleteParticipant(int participantId) {
+    public void deleteParticipant(UUID participantId) {
         for (Participant participant : participants) {
             if (participant.getParticipantId().equals(participantId)) {
                 participants.remove(participant);

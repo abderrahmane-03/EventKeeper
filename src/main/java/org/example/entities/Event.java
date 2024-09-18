@@ -49,7 +49,7 @@ public class Event {
      * @param eventType The type of the event.
      */
     public Event(UUID eventId, String eventName, Date eventDate, String eventLocation, EventType eventType) {
-        this.eventId = eventId;
+        this.eventId = UUID.randomUUID();
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.eventLocation = eventLocation;
@@ -158,7 +158,7 @@ public class Event {
      * @return The number of participants.
      */
     public int getNumberOfParticipants() {
-        return participants.size();
+        return participants != null ? participants.size() : 0;
     }
 
     /**

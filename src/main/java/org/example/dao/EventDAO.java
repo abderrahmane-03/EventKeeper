@@ -1,10 +1,3 @@
-/**
- * The EventDAO class provides data access operations for managing events in the application.
- * It stores and manipulates event data, allowing for the addition, modification, deletion,
- * and retrieval of events based on various criteria such as date, location, and event type.
- *
- * Package: org.example.dao
- */
 package org.example.dao;
 
 import org.example.entities.Event;
@@ -12,32 +5,18 @@ import org.example.enums.EventType;
 
 import java.util.*;
 
-/**
- * The EventDAO class manages the data access operations for the Event entity.
- */
 public class EventDAO {
 
-    // Stores events with their unique UUID as keys
     private final Map<UUID, Event> eventMap = new HashMap<>();
 
-    // List to store all events
-    private final ArrayList<Event> events;
-
     /**
-     * Constructor to initialize the event list.
-     */
-    public EventDAO() {
-        events = new ArrayList<>();
-    }
-
-    /**
-     * Adds an event to the event list.
+     * Adds an event to the event map.
      *
      * @param event The event to be added.
      */
     public void addEvent(Event event) {
-        events.add(event);
-        System.out.println("Event added successfully with ID: " + event.getEventId());
+        eventMap.put(event.getEventId(), event);
+        System.out.println("Event added: " + event.getEventId());
     }
 
     /**
@@ -49,34 +28,30 @@ public class EventDAO {
      * @param newLocation The new location of the event.
      * @param newType The new type of the event.
      */
-    public void modifyEvent(int eventId, String newName, Date newDate, String newLocation, EventType newType) {
-        for (Event event : events) {
-            if (event.getEventId().equals(eventId)) {
-                event.setEventName(newName);
-                event.setEventDate(newDate);
-                event.setEventLocation(newLocation);
-                event.setEventType(newType);
-                System.out.println("Event modified successfully.");
-                return;
-            }
+    public void modifyEvent(UUID eventId, String newName, Date newDate, String newLocation, EventType newType) {
+        Event event = eventMap.get(eventId);
+        if (event != null) {
+            event.setEventName(newName);
+            event.setEventDate(newDate);
+            event.setEventLocation(newLocation);
+            event.setEventType(newType);
+            System.out.println("Event modified successfully.");
+        } else {
+            System.out.println("Event not found.");
         }
-        System.out.println("Event not found.");
     }
 
     /**
-     * Deletes an event from the event list based on the event ID.
+     * Deletes an event from the event map based on the event ID.
      *
      * @param eventId The ID of the event to be deleted.
      */
-    public void deleteEvent(int eventId) {
-        for (Event event : events) {
-            if (event.getEventId().equals(eventId)) {
-                events.remove(event);
-                System.out.println("Event deleted successfully.");
-                return;
-            }
+    public void deleteEvent(UUID eventId) {
+        if (eventMap.remove(eventId) != null) {
+            System.out.println("Event deleted successfully.");
+        } else {
+            System.out.println("Event not found.");
         }
-        System.out.println("Event not found.");
     }
 
     /**
@@ -85,7 +60,7 @@ public class EventDAO {
      * @param eventId The ID of the event to retrieve.
      * @return The event with the specified ID, or null if not found.
      */
-    public Event findById(int eventId) {
+    public Event findById(UUID eventId) {
         return eventMap.get(eventId);
     }
 
@@ -97,7 +72,7 @@ public class EventDAO {
      */
     public List<Event> searchEventsByDate(Date date) {
         List<Event> result = new ArrayList<>();
-        for (Event event : events) {
+        for (Event event : eventMap.values()) {
             if (isSameDay(event.getEventDate(), date)) {
                 result.add(event);
             }
@@ -113,7 +88,7 @@ public class EventDAO {
      */
     public List<Event> searchEventsByLocation(String location) {
         List<Event> result = new ArrayList<>();
-        for (Event event : events) {
+        for (Event event : eventMap.values()) {
             if (event.getEventLocation().equalsIgnoreCase(location)) {
                 result.add(event);
             }
@@ -129,7 +104,7 @@ public class EventDAO {
      */
     public List<Event> searchEventsByType(EventType type) {
         List<Event> result = new ArrayList<>();
-        for (Event event : events) {
+        for (Event event : eventMap.values()) {
             if (event.getEventType().equals(type)) {
                 result.add(event);
             }
@@ -138,12 +113,12 @@ public class EventDAO {
     }
 
     /**
-     * Retrieves all events from the event list.
+     * Retrieves all events from the event map.
      *
      * @return A list of all events.
      */
     public List<Event> getAllEvents() {
-        return events;
+        return new ArrayList<>(eventMap.values());
     }
 
     /**

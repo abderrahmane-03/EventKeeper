@@ -35,11 +35,15 @@ public class Main {
         ReportService reportService = new ReportService(eventManager);
         ConsoleUI consoleUI = new ConsoleUI(eventManager, participantManager, reportService, scanner);
 
-        // Perform user login
-        User currentUser = UserService.login(scanner);
+        User currentUser = null;
+        boolean exitProgram = false;
 
-        // Main application loop
-        while (true) {
+        while (!exitProgram) {
+            // If the user is not logged in, perform login
+            if (currentUser == null) {
+                currentUser = UserService.login(scanner);
+            }
+
             // Display menu based on user role
             if (currentUser.isAdmin()) {
                 consoleUI.displayAdminMenu();
@@ -55,6 +59,19 @@ public class Main {
             } else if (currentUser.isParticipant()) {
                 consoleUI.handleParticipantActions(choice);
             }
+
+            // Option to switch user
+            if (choice == 7) {  // Assuming option 7 is for switching user
+                System.out.println("Switching user...");
+                currentUser = null;  // Clear the current user to trigger re-login
+            } else if (choice == 8) {  // Assuming option 8 is for exiting the program
+                System.out.println("Exiting the program...");
+                exitProgram = true;
+            }
         }
+
+        // Close the scanner when the program ends
+        scanner.close();
     }
+
 }
